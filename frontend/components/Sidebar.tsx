@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BotIcon from "@mui/icons-material/SmartToy";
+import MonitoringIcon from "@mui/icons-material/Insights";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
 import Logout from "@mui/icons-material/Logout";
@@ -28,6 +29,7 @@ const collapsedWidth = 72;
 
 const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: <DashboardIcon /> },
+    { name: "Monitoring", href: "/monitoring", icon: <MonitoringIcon /> },
     { name: "AI Agent", href: "/chat", icon: <BotIcon /> },
 ];
 

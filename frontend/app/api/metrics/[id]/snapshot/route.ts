@@ -3,11 +3,11 @@ import { BACKEND_URL } from '../../../config';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const token = request.headers.get('authorization');
-        const { id } = params;
+        const { id } = await params;
 
         const response = await fetch(`${BACKEND_URL}/metrics/${id}/snapshot`, {
             method: 'GET',

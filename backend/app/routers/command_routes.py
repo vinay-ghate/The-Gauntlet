@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user
-from app.models import CommandRequest, CommandResponse
+from app.models import CommandRequest, CommandResponse, User
 import subprocess
 import logging
 
@@ -11,14 +11,14 @@ logger = logging.getLogger(__name__)
 async def execute_command(
     server_id: str,
     command_request: CommandRequest,
-    current_user: str = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Execute a command on the server (localhost for now)"""
     try:
         # WARNING: All commands are now allowed - use with caution!
         # For production, implement proper command validation and sandboxing
         
-        logger.info(f"Executing command by {current_user}: {command_request.command}")
+        logger.info(f"Executing command by {current_user.username}: {command_request.command}")
         
         # Execute command
         result = subprocess.run(
