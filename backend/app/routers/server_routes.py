@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from app.dependencies import get_current_user
-from app.models import Server, CommandRequest, CommandResponse
+from app.models import Server, CommandRequest, CommandResponse, User
 import platform
 import socket
 
 router = APIRouter()
 
 @router.get("/", response_model=List[Server])
-async def get_servers(current_user: str = Depends(get_current_user)):
+async def get_servers(current_user: User = Depends(get_current_user)):
     """Get server information with OS and IP"""
     # Get OS name
     os_name = platform.system()  # Windows, Linux, Darwin (macOS)
@@ -29,12 +29,12 @@ async def get_servers(current_user: str = Depends(get_current_user)):
             id="1", 
             name=server_name,  # e.g., "Windows 11" or "Linux 5.15"
             host=ip_address,   # e.g., "192.168.1.100"
-            user=current_user
+            user=current_user.username  # Extract username from User object
         )
     ]
 
 @router.post("/{server_id}/ssh/run", response_model=CommandResponse)
-async def run_command(server_id: str, cmd: CommandRequest, current_user: str = Depends(get_current_user)):
+async def run_command(server_id: str, cmd: CommandRequest, current_user: User = Depends(get_current_user)):
     # In Phase 2 this will call ssh_service
     # For now, return mock
     return CommandResponse(
@@ -44,11 +44,11 @@ async def run_command(server_id: str, cmd: CommandRequest, current_user: str = D
     )
 
 @router.get("/{server_id}/ports")
-async def get_ports(server_id: str, current_user: str = Depends(get_current_user)):
+async def get_ports(server_id: str, current_user: User = Depends(get_current_user)):
     from app.services.server_info_service import server_info_service
     return server_info_service.get_ports(server_id)
 
 @router.get("/{server_id}/docker")
-async def get_docker(server_id: str, current_user: str = Depends(get_current_user)):
+async def get_docker(server_id: str, current_user: User = Depends(get_current_user)):
     from app.services.server_info_service import server_info_service
     return server_info_service.get_docker_containers(server_id)
