@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 
 @router.websocket("/metrics/{server_id}")
 async def websocket_endpoint(websocket: WebSocket, server_id: str):
+    """
+    Stream metric snapshots for a server over a WebSocket connection.
+    
+    Accepts the WebSocket and sends metrics snapshots for the given server_id as JSON once per second until the client disconnects or an unexpected error occurs. Logs connection, disconnection, and errors; attempts to close the WebSocket on error.
+    
+    Parameters:
+        server_id (str): Identifier of the server whose metrics will be streamed.
+    """
     await websocket.accept()
     logger.info(f"WebSocket connected for server {server_id}")
     try:
@@ -27,7 +35,14 @@ async def websocket_endpoint(websocket: WebSocket, server_id: str):
 
 @router.websocket("/monitoring/{server_id}")
 async def monitoring_websocket(websocket: WebSocket, server_id: str):
-    """WebSocket endpoint for real-time monitoring data"""
+    """
+    Stream comprehensive monitoring snapshots for a server over a WebSocket connection.
+    
+    Accepts the WebSocket, then repeatedly sends monitoring snapshots as JSON (approximately every 2 seconds) until the client disconnects. Logs connection, per-iteration debug information, and handles disconnects and other errors by closing the WebSocket when necessary.
+    
+    Parameters:
+        server_id (str): Identifier of the server whose monitoring data will be streamed.
+    """
     await websocket.accept()
     logger.info(f"Monitoring WebSocket connected for server {server_id}")
     try:
