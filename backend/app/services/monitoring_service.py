@@ -9,7 +9,23 @@ class MonitoringService:
     """Advanced monitoring service for processes and network"""
     
     def get_detailed_processes(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get detailed process information"""
+        """
+        Retrieve detailed information for running processes, returning the top CPU-consuming entries.
+        
+        Each item is a dictionary containing:
+        - `pid`: process id (int)
+        - `name`: process name (str), "Unknown" if unavailable
+        - `cpu`: CPU usage percentage rounded to two decimals (float)
+        - `memory`: memory usage percentage rounded to two decimals (float)
+        - `status`: process status string
+        - `username`: owning user (str), "N/A" if unavailable
+        
+        Parameters:
+            limit (int): Maximum number of processes to return; results are sorted by `cpu` descending.
+        
+        Returns:
+            List[Dict[str, Any]]: A list of process info dictionaries up to `limit` entries; returns an empty list on error.
+        """
         try:
             processes = []
             # First call to initialize CPU percent tracking
@@ -39,7 +55,19 @@ class MonitoringService:
             return []
     
     def get_network_connections(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get active network connections"""
+        """
+        Retrieve active INET network connections.
+        
+        Parameters:
+            limit (int): Maximum number of connection entries to return.
+        
+        Returns:
+            connections (List[Dict[str, Any]]): A list of connection records (up to `limit`), each containing:
+                - "local_address": local IP and port as "ip:port" or "N/A"
+                - "remote_address": remote IP and port as "ip:port" or "N/A"
+                - "status": connection status string
+                - "pid": owning process id (0 if unavailable)
+        """
         try:
             connections = []
             for conn in psutil.net_connections(kind='inet'):
@@ -62,7 +90,18 @@ class MonitoringService:
             return []
     
     def get_network_stats(self) -> Dict[str, Any]:
-        """Get network I/O statistics"""
+        """
+        Retrieve aggregate network I/O counters for the system.
+        
+        Returns:
+            stats (dict): Mapping with keys:
+                - bytes_sent: Total bytes sent.
+                - bytes_recv: Total bytes received.
+                - packets_sent: Total packets sent.
+                - packets_recv: Total packets received.
+                - errin: Number of inbound errors.
+                - errout: Number of outbound errors.
+        """
         try:
             net_io = psutil.net_io_counters()
             return {
@@ -85,7 +124,12 @@ class MonitoringService:
             }
     
     def get_cpu_per_core(self) -> List[float]:
-        """Get CPU usage per core"""
+        """
+        Return per-core CPU utilization percentages.
+        
+        Returns:
+            List[float]: A list where each element is the CPU usage percentage for a single logical core (0.0–100.0). Returns an empty list if the value cannot be retrieved.
+        """
         try:
             # Use interval=None for non-blocking call (returns usage since last call)
             return psutil.cpu_percent(interval=None, percpu=True)
@@ -94,7 +138,12 @@ class MonitoringService:
             return []
     
     def get_port_usage(self) -> Dict[str, int]:
-        """Get port usage statistics"""
+        """
+        Count active network connections by local port.
+        
+        Returns:
+            port_usage (Dict[str, int]): Mapping where keys are local port numbers as strings and values are the number of active connections using that port.
+        """
         try:
             port_counts = defaultdict(int)
             for conn in psutil.net_connections(kind='inet'):
@@ -109,7 +158,20 @@ class MonitoringService:
             return {}
     
     def get_monitoring_snapshot(self, server_id: str) -> Dict[str, Any]:
-        """Get comprehensive monitoring snapshot"""
+        """
+        Produce a comprehensive monitoring snapshot for the given server.
+        
+        Parameters:
+            server_id (str): Identifier of the server the snapshot represents.
+        
+        Returns:
+            Dict[str, Any]: A dictionary with the following keys:
+                - "processes": list of process info dictionaries (pid, name, cpu, memory, status, username).
+                - "network_connections": list of active network connection dictionaries (local_address, remote_address, status, pid).
+                - "network_stats": network I/O counters (bytes_sent, bytes_recv, packets_sent, packets_recv, errin, errout).
+                - "cpu_per_core": list of per-core CPU usage percentages.
+                - "port_usage": mapping of local port (str) to active connection count (int).
+        """
         return {
             "processes": self.get_detailed_processes(),
             "network_connections": self.get_network_connections(),
@@ -119,7 +181,15 @@ class MonitoringService:
         }
     
     def terminate_process(self, pid: int) -> bool:
-        """Terminate a process gracefully"""
+        """
+        Attempt to terminate the process identified by the given PID.
+        
+        Parameters:
+            pid (int): Process identifier of the target process.
+        
+        Returns:
+            bool: `true` if the terminate request was issued successfully, `false` if the process does not exist, access is denied, or an error occurred.
+        """
         try:
             proc = psutil.Process(pid)
             proc.terminate()
@@ -136,7 +206,12 @@ class MonitoringService:
             return False
     
     def kill_process(self, pid: int) -> bool:
-        """Kill a process forcefully"""
+        """
+        Forcefully terminate the process identified by the given PID.
+        
+        Returns:
+            `true` if the process was terminated, `false` if the process did not exist, access was denied, or an error occurred.
+        """
         try:
             proc = psutil.Process(pid)
             proc.kill()
@@ -153,7 +228,12 @@ class MonitoringService:
             return False
     
     def suspend_process(self, pid: int) -> bool:
-        """Suspend a process"""
+        """
+        Suspend the process with the given PID.
+        
+        Returns:
+            True if the process was suspended, False otherwise.
+        """
         try:
             proc = psutil.Process(pid)
             proc.suspend()
@@ -170,7 +250,12 @@ class MonitoringService:
             return False
     
     def resume_process(self, pid: int) -> bool:
-        """Resume a suspended process"""
+        """
+        Resume a suspended process.
+        
+        Returns:
+            bool: True if the process was resumed successfully, False otherwise.
+        """
         try:
             proc = psutil.Process(pid)
             proc.resume()

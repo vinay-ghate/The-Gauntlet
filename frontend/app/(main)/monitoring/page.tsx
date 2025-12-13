@@ -136,6 +136,13 @@ const MetricCard = ({
     </Card>
 );
 
+/**
+ * Render the monitoring dashboard for selecting a server, viewing real-time metrics, and managing processes.
+ *
+ * Establishes a WebSocket connection for live monitoring data for the selected server, loads the available servers on mount, displays CPU, process and network views, and provides controls to suspend/terminate/kill processes with a confirmation flow.
+ *
+ * @returns The component's React element tree for the monitoring dashboard.
+ */
 export default function MonitoringPage() {
     const [servers, setServers] = useState<Server[]>([]);
     const [selectedServer, setSelectedServer] = useState<string>("");

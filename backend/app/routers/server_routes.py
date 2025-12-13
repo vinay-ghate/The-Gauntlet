@@ -9,7 +9,15 @@ router = APIRouter()
 
 @router.get("/", response_model=List[Server])
 async def get_servers(current_user: User = Depends(get_current_user)):
-    """Get server information with OS and IP"""
+    """
+    Return a list with server information (OS name, host IP, and owning username) for the current host.
+    
+    Parameters:
+    	current_user (User): Authenticated user whose username is recorded as the server's `user` field.
+    
+    Returns:
+    	servers (List[Server]): A list containing a Server object for the current host. The Server's `name` is the OS name and version, `host` is the resolved IP address (falls back to "127.0.0.1" on resolution failure), and `user` is `current_user.username`.
+    """
     # Get OS name
     os_name = platform.system()  # Windows, Linux, Darwin (macOS)
     os_version = platform.release()
@@ -37,6 +45,16 @@ async def get_servers(current_user: User = Depends(get_current_user)):
 async def run_command(server_id: str, cmd: CommandRequest, current_user: User = Depends(get_current_user)):
     # In Phase 2 this will call ssh_service
     # For now, return mock
+    """
+    Execute a command on the specified server (mock implementation).
+    
+    Parameters:
+        server_id (str): Identifier of the target server.
+        cmd (CommandRequest): Request object containing the command to run (accessible as `cmd.command`).
+    
+    Returns:
+        CommandResponse: Response containing `stdout` with the mocked command output, `stderr` as an empty string, and `exit_code` set to 0.
+    """
     return CommandResponse(
         stdout=f"Mock output for command: {cmd.command} on server {server_id}",
         stderr="",
@@ -45,10 +63,28 @@ async def run_command(server_id: str, cmd: CommandRequest, current_user: User = 
 
 @router.get("/{server_id}/ports")
 async def get_ports(server_id: str, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve open ports for the specified server.
+    
+    Parameters:
+        server_id (str): Identifier of the server to inspect.
+    
+    Returns:
+        A list of open ports for the specified server.
+    """
     from app.services.server_info_service import server_info_service
     return server_info_service.get_ports(server_id)
 
 @router.get("/{server_id}/docker")
 async def get_docker(server_id: str, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve Docker containers running on the specified server.
+    
+    Parameters:
+        server_id (str): Identifier of the server to query for Docker containers.
+    
+    Returns:
+        list: A list of container information objects for the server (e.g., metadata such as container id, image, and status).
+    """
     from app.services.server_info_service import server_info_service
     return server_info_service.get_docker_containers(server_id)
