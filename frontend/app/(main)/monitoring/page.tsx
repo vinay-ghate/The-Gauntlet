@@ -24,7 +24,6 @@ import {
     DialogActions,
     Tooltip,
     LinearProgress,
-    Grid,
     Select,
     MenuItem,
     FormControl,
@@ -173,7 +172,12 @@ export default function MonitoringPage() {
 
         const connectWebSocket = () => {
             const token = localStorage.getItem("token");
-            const wsUrl = `ws://localhost:8000/ws/monitoring/${selectedServer}?token=${token}`;
+            // Get backend URL from environment or default to localhost
+            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+            // Convert http/https to ws/wss
+            const wsProtocol = backendUrl.startsWith('https') ? 'wss' : 'ws';
+            const wsHost = backendUrl.replace(/^https?:\/\//, '');
+            const wsUrl = `${wsProtocol}://${wsHost}/ws/monitoring/${selectedServer}?token=${token}`;
 
             const ws = new WebSocket(wsUrl);
 
@@ -293,40 +297,32 @@ export default function MonitoringPage() {
             {monitoringData ? (
                 <>
                     {/* Metrics Overview */}
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <MetricCard
-                                title="Active Processes"
-                                value={monitoringData.processes.length}
-                                icon={<Memory />}
-                                color="#9c27b0"
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <MetricCard
-                                title="Network Connections"
-                                value={monitoringData.network_connections.length}
-                                icon={<NetworkCheck />}
-                                color="#2196f3"
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <MetricCard
-                                title="Data Sent"
-                                value={`${(monitoringData.network_stats.bytes_sent / (1024 ** 2)).toFixed(2)} MB`}
-                                icon={<TrendingUp />}
-                                color="#4caf50"
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <MetricCard
-                                title="Data Received"
-                                value={`${(monitoringData.network_stats.bytes_recv / (1024 ** 2)).toFixed(2)} MB`}
-                                icon={<TrendingDown />}
-                                color="#ff9800"
-                            />
-                        </Grid>
-                    </Grid>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+                        <MetricCard
+                            title="Active Processes"
+                            value={monitoringData.processes.length}
+                            icon={<Memory />}
+                            color="#9c27b0"
+                        />
+                        <MetricCard
+                            title="Network Connections"
+                            value={monitoringData.network_connections.length}
+                            icon={<NetworkCheck />}
+                            color="#2196f3"
+                        />
+                        <MetricCard
+                            title="Data Sent"
+                            value={`${(monitoringData.network_stats.bytes_sent / (1024 ** 2)).toFixed(2)} MB`}
+                            icon={<TrendingUp />}
+                            color="#4caf50"
+                        />
+                        <MetricCard
+                            title="Data Received"
+                            value={`${(monitoringData.network_stats.bytes_recv / (1024 ** 2)).toFixed(2)} MB`}
+                            icon={<TrendingDown />}
+                            color="#ff9800"
+                        />
+                    </Box>
 
                     {/* CPU Per Core */}
                     {monitoringData.cpu_per_core && monitoringData.cpu_per_core.length > 0 && (
@@ -335,28 +331,26 @@ export default function MonitoringPage() {
                                 <Typography variant="h6" fontWeight="bold" gutterBottom>
                                     CPU Usage Per Core
                                 </Typography>
-                                <Grid container spacing={2} sx={{ mt: 1 }}>
+                                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mt: 1 }}>
                                     {monitoringData.cpu_per_core.map((usage, idx) => (
-                                        <Grid item xs={12} sm={6} md={3} key={idx}>
-                                            <Box>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Core {idx}
-                                                    </Typography>
-                                                    <Typography variant="caption" fontWeight="bold">
-                                                        {usage.toFixed(1)}%
-                                                    </Typography>
-                                                </Box>
-                                                <LinearProgress
-                                                    variant="determinate"
-                                                    value={usage}
-                                                    color={usage > 80 ? "error" : usage > 60 ? "warning" : "primary"}
-                                                    sx={{ height: 8, borderRadius: 1 }}
-                                                />
+                                        <Box key={idx}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Core {idx}
+                                                </Typography>
+                                                <Typography variant="caption" fontWeight="bold">
+                                                    {usage.toFixed(1)}%
+                                                </Typography>
                                             </Box>
-                                        </Grid>
+                                            <LinearProgress
+                                                variant="determinate"
+                                                value={usage}
+                                                color={usage > 80 ? "error" : usage > 60 ? "warning" : "primary"}
+                                                sx={{ height: 8, borderRadius: 1 }}
+                                            />
+                                        </Box>
                                     ))}
-                                </Grid>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -470,9 +464,9 @@ export default function MonitoringPage() {
                     </Card>
 
                     {/* Network Monitoring */}
-                    <Grid container spacing={3}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
                         {/* Network Connections */}
-                        <Grid item xs={12} lg={8}>
+                        <Box>
                             <Card>
                                 <CardContent>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -522,10 +516,10 @@ export default function MonitoringPage() {
                                     </TableContainer>
                                 </CardContent>
                             </Card>
-                        </Grid>
+                        </Box>
 
                         {/* Top Ports */}
-                        <Grid item xs={12} lg={4}>
+                        <Box>
                             <Card>
                                 <CardContent>
                                     <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -555,8 +549,8 @@ export default function MonitoringPage() {
                                     </Box>
                                 </CardContent>
                             </Card>
-                        </Grid>
-                    </Grid>
+                        </Box>
+                    </Box>
                 </>
             ) : (
                 <Box sx={{ textAlign: 'center', py: 8 }}>
