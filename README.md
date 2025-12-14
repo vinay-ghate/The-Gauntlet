@@ -2,6 +2,8 @@
 
 A powerful AI-powered system operations dashboard with real-time monitoring, terminal access, and intelligent agent assistance.
 
+### Preview : [The Gauntlet](https://the-gauntlet-756t.vercel.app/login)
+
 ![The Gauntlet](https://img.shields.io/badge/Status-Active-success)
 ![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
