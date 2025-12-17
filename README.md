@@ -35,6 +35,13 @@ A powerful AI-powered system operations dashboard with real-time monitoring, ter
 - **Protected Routes**: All endpoints require authentication
 - **CORS Configuration**: Properly configured for development
 
+### Screenshots
+<img width="734" height="708" alt="image" src="https://github.com/user-attachments/assets/3912aec3-ae9a-476d-8c54-94786127a07b" />
+<img width="1919" height="859" alt="image" src="https://github.com/user-attachments/assets/277cfd1c-5799-4695-be6c-0dac207584aa" />
+<img width="1907" height="865" alt="image" src="https://github.com/user-attachments/assets/11785fae-1599-47ef-856c-70711fc5ebb8" />
+<img width="1919" height="861" alt="image" src="https://github.com/user-attachments/assets/8c72334f-0444-49fd-8e62-543b270aaf2d" />
+
+
 ## 🚀 Quick Start
 
 ### Prerequisites
